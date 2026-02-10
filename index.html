@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For You ❤️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+    min-height:100vh;
+    color:white;
+    font-family:Georgia,serif;
+    text-align:center;
+    background:linear-gradient(120deg,#ff5f9e,#845ec2,#4d96ff);
+    background-size:300% 300%;
+    animation:bg 12s ease infinite;
+}
+
+@keyframes bg{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
+section{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:24px;
+}
+
+.hidden{display:none}
+
+h1{font-size:2.3em;margin-bottom:18px}
+p{font-size:1.15em;line-height:1.7;max-width:720px;margin-bottom:18px}
+.small{font-size:1em;opacity:0.9}
+
+button{
+    margin-top:12px;
+    padding:10px 22px;
+    font-size:1em;
+    border:none;
+    border-radius:24px;
+    background:linear-gradient(45deg,#ff6fb1,#ff9671);
+    color:white;
+    cursor:pointer;
+}
+
+img{
+    max-width:85%;
+    border-radius:18px;
+    margin:20px 0;
+}
+
+/* FLOWERS */
+.flowers{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+}
+.flower{
+    position:absolute;
+    bottom:-80px;
+    font-size:2em;
+    animation:floatUp 6s linear infinite;
+}
+@keyframes floatUp{
+    from{transform:translateY(0);opacity:1}
+    to{transform:translateY(-120vh);opacity:0}
+}
+
+/* SCRATCH CARD */
+.scratch-container{
+    position:relative;
+    width:300px;
+    height:140px;
+    border-radius:14px;
+    overflow:hidden;
+}
+
+.scratch-text{
+    position:absolute;
+    inset:0;
+    background:#ffd1e8;
+    color:#5a0033;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-size:1.2em;
+    padding:16px;
+    text-align:center;
+}
+
+canvas{position:absolute;inset:0}
+</style>
+</head>
+
+<body>
+
+<section id="start">
+    <h1>Happy Valentine’s Day, Lakshmieieie!! ❤️</h1>
+    <p>I made something for you.</p>
+    <button onclick="start()">Tap to open</button>
+</section>
+
+<section id="letter" class="hidden">
+    <div id="letterBox"></div>
+    <button onclick="go('letter','photo')">Next</button>
+</section>
+
+<section id="photo" class="hidden">
+    <img src="photo1.jpg">
+    <p class="small">
+        This was the day I realised that (You + Me) is much more fun than (You - Me)...<br> Or is it (Me - You)???<br> Enthaayalum...
+    </p>
+    <button onclick="go('photo','flowersQ')">Next</button>
+</section>
+
+<section id="flowersQ" class="hidden">
+    <div class="flowers" id="flowerAnim"></div>
+    <h1>Would you like some flowers? 🌸</h1>
+    <img src="flowers-gift.gif">
+    <button onclick="yesFlowers()">Yes</button>
+    <button onclick="noFlowers()">No</button>
+</section>
+
+<section id="confirmNo" class="hidden">
+    <h1>Are you sure you don't want flowers? 🥺</h1>
+    <img src="sad.gif">
+    <button onclick="confirmNoYes()">Yes</button>
+    <button onclick="confirmNoNo()">No</button>
+</section>
+
+<section id="chocolates" class="hidden">
+    <h1>Good! I have chocolates for you! 🍫</h1>
+    <img src="chocolates.png">
+    <button onclick="endingRouter()">Next</button>
+</section>
+
+<section id="flowers" class="hidden">
+    <h1>I thought we agreed on gifting chocolates,<br>but here you go! 🌸</h1>
+    <img src="flowers.png">
+    <button onclick="endingRouter()">Next</button>
+</section>
+
+<!-- RUN 2 -->
+<section id="secondRun" class="hidden">
+    <h1>You still here?</h1>
+    <img src="run2.gif">
+    <p>There's nothing more... That's it!</p>
+    <button onclick="restart()">Start again</button>
+</section>
+
+<!-- RUN 3 -->
+<section id="thirdRun" class="hidden">
+    <h1>I figured you'd try again 😏</h1>
+    <img src="run3.gif">
+    <p>You have succesfully unlocked the coupon code for extra kisses.</p>
+
+    <div class="scratch-container">
+        <div class="scratch-text">You get unlimited kisses anyway!<br> - girlfriend privileges!</div>
+        <canvas id="scratchCanvas"></canvas>
+    </div>
+
+    <button onclick="restart()">Start again</button>
+</section>
+
+<!-- RUN 1 -->
+<section id="final" class="hidden">
+    <h1>I love you ❤️</h1>
+    <img src="run1.gif">
+    <p class="small">
+        I love you more than the distance and the disconnection.
+        You still are the best thing that has happened to me in a very long time.
+        I miss you and can't wait to see you again!
+        Happy Valentine's Day!
+    </p>
+    <button onclick="restart()">Start again</button>
+</section>
+
+<audio id="music" src="music.mp3" loop></audio>
+
+<script>
+let currentRun = 1;
+
+const music = document.getElementById("music");
+const letterBox = document.getElementById("letterBox");
+
+const letterParagraphs = [
+`Hey darlings,`,
+`I'm sorry this is all I could manage for our first Valentine's Day.`,
+`I know that I am not easy and that I have hurt you in ways that I did not intend.`,
+`You have been really kind and understanding, and I am sorry to have done that.`,
+`I used to think that I was incapable of change. I believed I had to have this unapologetic and prideful “this is who I am” demeanor.`,
+`But for the first time in a long time, I feel the need to change — to be a better person.`,
+`I have grown in ways that I thought I never would in the short time we have been together.`,
+`But I am nowhere close to the man I want to become.`,
+`Yes, we do have a lot of problems, and this distance is really not helping much.`,
+`But someone once told me that I have to look at life with some degree of optimism.`,
+`I realise that this is not easy for you either.`,
+`You don’t have to have everything figured out right now. I’m not in a hurry, and I won’t push you.`,
+`I was really selfish for the past few days, and I was only thinking about myself.`,
+`I will try to do better, and if you are willing,`,
+`I’d rather try with you a million times than let ego win.`,
+`We fight and we fix.`,
+`You matter to me. Deeply.`,
+`Love you always!`,
+`- Po`
+
+];
+
+let p=0,c=0,currentP;
+
+function typeLetter(){
+    if(p>=letterParagraphs.length) return;
+    if(c===0){
+        currentP=document.createElement("p");
+        letterBox.appendChild(currentP);
+    }
+    if(c<letterParagraphs[p].length){
+        currentP.textContent+=letterParagraphs[p][c++];
+        setTimeout(typeLetter,40);
+    }else{
+        p++;c=0;
+        setTimeout(typeLetter,400);
+    }
+}
+
+function go(from,to){
+    document.getElementById(from).classList.add("hidden");
+    document.getElementById(to).classList.remove("hidden");
+}
+
+function start(){
+    p=0; c=0; letterBox.innerHTML="";
+    currentRun = Number(localStorage.getItem("runs")||0)+1;
+    localStorage.setItem("runs",currentRun);
+
+    go("start","letter");
+    music.volume=0.6;
+    music.play().catch(()=>{});
+    typeLetter();
+}
+
+function yesFlowers(){ go("flowersQ","flowers"); }
+function noFlowers(){ go("flowersQ","confirmNo"); }
+function confirmNoYes(){ go("confirmNo","chocolates"); }
+function confirmNoNo(){ go("confirmNo","flowers"); }
+
+function endingRouter(){
+    document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
+    if(currentRun===2){
+        secondRun.classList.remove("hidden");
+    }else if(currentRun>=3){
+        thirdRun.classList.remove("hidden");
+        initScratch();
+    }else{
+        final.classList.remove("hidden");
+    }
+}
+
+function restart(){ location.reload(); }
+
+/* FLOWER ANIMATION */
+const anim=document.getElementById("flowerAnim");
+for(let i=0;i<15;i++){
+    let f=document.createElement("div");
+    f.className="flower";
+    f.innerText="🌸";
+    f.style.left=Math.random()*100+"%";
+    f.style.animationDelay=Math.random()*6+"s";
+    anim.appendChild(f);
+}
+
+/* SCRATCH CARD */
+function initScratch(){
+    const canvas=document.getElementById("scratchCanvas");
+    const ctx=canvas.getContext("2d");
+    canvas.width=300;
+    canvas.height=140;
+    ctx.fillStyle="#999";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.globalCompositeOperation="destination-out";
+
+    let active=false;
+
+    function scratch(x,y){
+        ctx.beginPath();
+        ctx.arc(x,y,18,0,Math.PI*2);
+        ctx.fill();
+    }
+
+    function pos(e){
+        const r=canvas.getBoundingClientRect();
+        const t=e.touches?e.touches[0]:e;
+        return {x:t.clientX-r.left,y:t.clientY-r.top};
+    }
+
+    canvas.onmousedown=e=>{active=true;scratch(...Object.values(pos(e)))};
+    canvas.onmousemove=e=>active&&scratch(...Object.values(pos(e)));
+    canvas.onmouseup=()=>active=false;
+    canvas.onmouseleave=()=>active=false;
+
+    canvas.ontouchstart=e=>{active=true;scratch(...Object.values(pos(e)))};
+    canvas.ontouchmove=e=>{e.preventDefault();scratch(...Object.values(pos(e)))};
+    canvas.ontouchend=()=>active=false;
+}
+</script>
+
+</body>
+</html>
